@@ -46,6 +46,7 @@
           {
             "group": "Data",
             "pages": [
+              "api-reference/endpoint/get-time",
               "api-reference/endpoint/get-midpoint",
               "api-reference/endpoint/get-midpoints-get",
               "api-reference/endpoint/get-midpoints-post",
@@ -54,8 +55,18 @@
               "api-reference/endpoint/get-last-trade-price",
               "api-reference/endpoint/get-last-trades-prices-get",
               "api-reference/endpoint/get-last-trades-prices-post",
+              "api-reference/endpoint/get-price",
+              "api-reference/endpoint/get-prices-get",
+              "api-reference/endpoint/get-prices-post",
+              "api-reference/endpoint/get-book",
+              "api-reference/endpoint/get-books-get",
+              "api-reference/endpoint/get-books-post",
               "api-reference/endpoint/get-fee-rate",
-              "api-reference/endpoint/get-fee-rate-by-path"
+              "api-reference/endpoint/get-fee-rate-by-path",
+              "api-reference/endpoint/get-tick-size",
+              "api-reference/endpoint/get-tick-size-by-path",
+              "api-reference/endpoint/get-neg-risk",
+              "api-reference/endpoint/get-neg-risk-by-path"
             ]
           }
         ]

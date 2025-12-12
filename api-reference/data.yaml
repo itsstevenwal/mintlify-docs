@@ -576,6 +576,586 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 error: "Internal server error"
+  /tick-size:
+    get:
+      summary: Get tick size
+      description: |
+        Retrieves the minimum tick size (price increment) for a specific token ID.
+        The tick size can be provided either as a query parameter or as a path parameter.
+      operationId: getTickSize
+      tags:
+        - Market Data
+      parameters:
+        - name: token_id
+          in: query
+          description: Token ID (asset ID)
+          required: false
+          schema:
+            type: string
+          example: "0xabc123def456..."
+      responses:
+        "200":
+          description: Successfully retrieved tick size
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TickSize"
+              example:
+                minimum_tick_size: 0.01
+        "400":
+          description: Bad request - Invalid token id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Invalid token id"
+        "404":
+          description: Not found - Market not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "market not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Internal server error"
+  /tick-size/{token_id}:
+    get:
+      summary: Get tick size by path parameter
+      description: |
+        Retrieves the minimum tick size (price increment) for a specific token ID using the token ID as a path parameter.
+      operationId: getTickSizeByPath
+      tags:
+        - Market Data
+      parameters:
+        - name: token_id
+          in: path
+          description: Token ID (asset ID)
+          required: true
+          schema:
+            type: string
+          example: "0xabc123def456..."
+      responses:
+        "200":
+          description: Successfully retrieved tick size
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TickSize"
+              example:
+                minimum_tick_size: 0.01
+        "400":
+          description: Bad request - Invalid token id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Invalid token id"
+        "404":
+          description: Not found - Market not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "market not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Internal server error"
+  /neg-risk:
+    get:
+      summary: Get negative risk flag
+      description: |
+        Retrieves the negative risk flag for a specific token ID.
+        The token ID can be provided either as a query parameter or as a path parameter.
+      operationId: getNegRisk
+      tags:
+        - Market Data
+      parameters:
+        - name: token_id
+          in: query
+          description: Token ID (asset ID)
+          required: false
+          schema:
+            type: string
+          example: "0xabc123def456..."
+      responses:
+        "200":
+          description: Successfully retrieved negative risk flag
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NegRisk"
+              example:
+                neg_risk: false
+        "400":
+          description: Bad request - Invalid token id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Invalid token id"
+        "404":
+          description: Not found - Market not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "market not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Internal server error"
+  /neg-risk/{token_id}:
+    get:
+      summary: Get negative risk flag by path parameter
+      description: |
+        Retrieves the negative risk flag for a specific token ID using the token ID as a path parameter.
+      operationId: getNegRiskByPath
+      tags:
+        - Market Data
+      parameters:
+        - name: token_id
+          in: path
+          description: Token ID (asset ID)
+          required: true
+          schema:
+            type: string
+          example: "0xabc123def456..."
+      responses:
+        "200":
+          description: Successfully retrieved negative risk flag
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NegRisk"
+              example:
+                neg_risk: false
+        "400":
+          description: Bad request - Invalid token id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Invalid token id"
+        "404":
+          description: Not found - Market not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "market not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Internal server error"
+  /price:
+    get:
+      summary: Get market price
+      description: |
+        Retrieves the best market price for a specific token ID and side (bid or ask).
+        Returns the best bid price for BUY side or best ask price for SELL side.
+      operationId: getPrice
+      tags:
+        - Market Data
+      parameters:
+        - name: token_id
+          in: query
+          description: Token ID (asset ID)
+          required: true
+          schema:
+            type: string
+          example: "0xabc123def456..."
+        - name: side
+          in: query
+          description: Order side
+          required: true
+          schema:
+            type: string
+            enum:
+              - BUY
+              - SELL
+          example: "BUY"
+      responses:
+        "200":
+          description: Successfully retrieved market price
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - price
+                properties:
+                  price:
+                    type: number
+                    format: double
+                    description: Market price as a decimal number
+                    example: 0.45
+              example:
+                price: 0.45
+        "400":
+          description: Bad request - Invalid token id or side
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                invalid_token_id:
+                  summary: Invalid token id
+                  value:
+                    error: "Invalid token id"
+                invalid_side:
+                  summary: Invalid side
+                  value:
+                    error: "Invalid side"
+        "404":
+          description: Not found - No orderbook exists for the requested token id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "No orderbook exists for the requested token id"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Internal server error"
+  /prices:
+    get:
+      summary: Get market prices (query parameters)
+      description: |
+        Retrieves market prices for multiple token IDs and sides using query parameters.
+      operationId: getPricesGet
+      tags:
+        - Market Data
+      parameters:
+        - name: token_ids
+          in: query
+          description: Comma-separated list of token IDs
+          required: true
+          schema:
+            type: string
+          example: "0xabc123...,0xdef456..."
+        - name: sides
+          in: query
+          description: Comma-separated list of sides (BUY or SELL) corresponding to token IDs
+          required: true
+          schema:
+            type: string
+          example: "BUY,SELL"
+      responses:
+        "200":
+          description: Successfully retrieved market prices
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  additionalProperties:
+                    type: number
+                    format: double
+                description: Map of token ID to map of side to price
+              example:
+                "0xabc123def456...":
+                  BUY: 0.45
+                "0xdef456abc123...":
+                  SELL: 0.52
+        "400":
+          description: Bad request - Invalid payload or side
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                invalid_payload:
+                  summary: Invalid payload
+                  value:
+                    error: "Invalid payload"
+                invalid_side:
+                  summary: Invalid side
+                  value:
+                    error: "Invalid side"
+        "404":
+          description: Not found - No orderbook exists for the requested token id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "No orderbook exists for the requested token id"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Internal server error"
+    post:
+      summary: Get market prices (request body)
+      description: |
+        Retrieves market prices for multiple token IDs and sides using a request body.
+        Each request must include both token_id and side.
+      operationId: getPricesPost
+      tags:
+        - Market Data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/BookRequest"
+            example:
+              - token_id: "0xabc123def456..."
+                side: "BUY"
+              - token_id: "0xdef456abc123..."
+                side: "SELL"
+      responses:
+        "200":
+          description: Successfully retrieved market prices
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  additionalProperties:
+                    type: number
+                    format: double
+                description: Map of token ID to map of side to price
+              example:
+                "0xabc123def456...":
+                  BUY: 0.45
+                "0xdef456abc123...":
+                  SELL: 0.52
+        "400":
+          description: Bad request - Invalid payload or side
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                invalid_payload:
+                  summary: Invalid payload
+                  value:
+                    error: "Invalid payload"
+                invalid_side:
+                  summary: Invalid side
+                  value:
+                    error: "Invalid side"
+        "404":
+          description: Not found - No orderbook exists for the requested token id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "No orderbook exists for the requested token id"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Internal server error"
+  /book:
+    get:
+      summary: Get order book
+      description: |
+        Retrieves the order book summary for a specific token ID.
+        Includes bids, asks, market details, and last trade price.
+      operationId: getBook
+      tags:
+        - Market Data
+      parameters:
+        - name: token_id
+          in: query
+          description: Token ID (asset ID)
+          required: true
+          schema:
+            type: string
+          example: "0xabc123def456..."
+      responses:
+        "200":
+          description: Successfully retrieved order book
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderBookSummary"
+              example:
+                market: "0x1234567890123456789012345678901234567890"
+                asset_id: "0xabc123def456..."
+                timestamp: "1234567890"
+                hash: "a1b2c3d4e5f6..."
+                bids:
+                  - price: "0.45"
+                    size: "100"
+                  - price: "0.44"
+                    size: "200"
+                asks:
+                  - price: "0.46"
+                    size: "150"
+                  - price: "0.47"
+                    size: "250"
+                min_order_size: "1"
+                tick_size: "0.01"
+                neg_risk: false
+                last_trade_price: "0.45"
+        "400":
+          description: Bad request - Invalid token id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Invalid token id"
+        "404":
+          description: Not found - No orderbook exists for the requested token id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "No orderbook exists for the requested token id"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "error getting the orderbook"
+  /books:
+    get:
+      summary: Get order books (query parameters)
+      description: |
+        Retrieves order book summaries for multiple token IDs using query parameters.
+      operationId: getBooksGet
+      tags:
+        - Market Data
+      parameters:
+        - name: token_ids
+          in: query
+          description: Comma-separated list of token IDs
+          required: true
+          schema:
+            type: string
+          example: "0xabc123...,0xdef456..."
+      responses:
+        "200":
+          description: Successfully retrieved order books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrderBookSummary"
+              example:
+                - market: "0x1234567890123456789012345678901234567890"
+                  asset_id: "0xabc123def456..."
+                  timestamp: "1234567890"
+                  hash: "a1b2c3d4e5f6..."
+                  bids:
+                    - price: "0.45"
+                      size: "100"
+                  asks:
+                    - price: "0.46"
+                      size: "150"
+                  min_order_size: "1"
+                  tick_size: "0.01"
+                  neg_risk: false
+                  last_trade_price: "0.45"
+        "400":
+          description: Bad request - Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Invalid payload"
+    post:
+      summary: Get order books (request body)
+      description: |
+        Retrieves order book summaries for multiple token IDs using a request body.
+      operationId: getBooksPost
+      tags:
+        - Market Data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/BookRequest"
+            example:
+              - token_id: "0xabc123def456..."
+              - token_id: "0xdef456abc123..."
+      responses:
+        "200":
+          description: Successfully retrieved order books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrderBookSummary"
+              example:
+                - market: "0x1234567890123456789012345678901234567890"
+                  asset_id: "0xabc123def456..."
+                  timestamp: "1234567890"
+                  hash: "a1b2c3d4e5f6..."
+                  bids:
+                    - price: "0.45"
+                      size: "100"
+                  asks:
+                    - price: "0.46"
+                      size: "150"
+                  min_order_size: "1"
+                  tick_size: "0.01"
+                  neg_risk: false
+                  last_trade_price: "0.45"
+        "400":
+          description: Bad request - Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Invalid payload"
 components:
   schemas:
     BookRequest:
@@ -604,6 +1184,96 @@ components:
           format: int64
           description: Base fee in basis points
           example: 30
+    NegRisk:
+      type: object
+      required:
+        - neg_risk
+      properties:
+        neg_risk:
+          type: boolean
+          description: Whether negative risk is enabled for this market
+          example: false
+    TickSize:
+      type: object
+      required:
+        - minimum_tick_size
+      properties:
+        minimum_tick_size:
+          type: number
+          format: double
+          description: Minimum tick size (price increment)
+          example: 0.01
+    OrderBookSummary:
+      type: object
+      required:
+        - market
+        - asset_id
+        - timestamp
+        - hash
+        - bids
+        - asks
+        - min_order_size
+        - tick_size
+        - neg_risk
+        - last_trade_price
+      properties:
+        market:
+          type: string
+          description: Market condition ID
+          example: "0x1234567890123456789012345678901234567890"
+        asset_id:
+          type: string
+          description: Token ID (asset ID)
+          example: "0xabc123def456..."
+        timestamp:
+          type: string
+          description: Timestamp of the order book snapshot
+          example: "1234567890"
+        hash:
+          type: string
+          description: Hash of the order book summary
+          example: "a1b2c3d4e5f6..."
+        bids:
+          type: array
+          description: List of bid orders (sorted by price descending)
+          items:
+            $ref: "#/components/schemas/OrderSummary"
+        asks:
+          type: array
+          description: List of ask orders (sorted by price ascending)
+          items:
+            $ref: "#/components/schemas/OrderSummary"
+        min_order_size:
+          type: string
+          description: Minimum order size
+          example: "1"
+        tick_size:
+          type: string
+          description: Minimum price increment (tick size)
+          example: "0.01"
+        neg_risk:
+          type: boolean
+          description: Whether negative risk is enabled for this market
+          example: false
+        last_trade_price:
+          type: string
+          description: Last trade price
+          example: "0.45"
+
+    OrderSummary:
+      type: object
+      required:
+        - price
+        - size
+      properties:
+        price:
+          type: string
+          description: Order price
+          example: "0.45"
+        size:
+          type: string
+          description: Order size
+          example: "100"
     ErrorResponse:
       type: object
       required:
