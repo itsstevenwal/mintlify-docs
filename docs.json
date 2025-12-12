@@ -29,7 +29,8 @@
               "api-reference/endpoint/cancel-order",
               "api-reference/endpoint/cancel-orders",
               "api-reference/endpoint/cancel-all",
-              "api-reference/endpoint/cancel-all-markets"
+              "api-reference/endpoint/cancel-all-markets",
+              "api-reference/endpoint/submit-transaction"
             ]
           },
           {
@@ -40,17 +41,29 @@
               "api-reference/endpoint/derive-api-key",
               "api-reference/endpoint/remove-api-key",
               "api-reference/endpoint/get-balance-allowance",
-              "api-reference/endpoint/update-balance-allowance"
+              "api-reference/endpoint/update-balance-allowance",
+              "api-reference/endpoint/get-nonce",
+              "api-reference/endpoint/get-relay-payload",
+              "api-reference/endpoint/get-transaction",
+              "api-reference/endpoint/get-transactions",
+              "api-reference/endpoint/get-deployed"
             ]
           },
           {
             "group": "Data",
             "pages": [
               {
-                "group": "Profile",
+                "group": "General",
                 "expanded": true,
                 "pages": [
                   "api-reference/endpoint/get-time",
+                  "api-reference/endpoint/get-relay-address"
+                ]
+              },
+              {
+                "group": "Profile",
+                "expanded": true,
+                "pages": [
                   "api-reference/endpoint/get-holders",
                   "api-reference/endpoint/get-positions",
                   "api-reference/endpoint/get-value",

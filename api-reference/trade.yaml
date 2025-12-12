@@ -837,6 +837,340 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 error: "Trading is currently disabled. Check polymarket.com for updates"
+  /address:
+    get:
+      tags:
+        - Address
+      summary: Get relay address
+      description: |
+        Gets the address used for executing transactions. 
+        This is necessary for Transaction Requests with Type PROXY since the client must know the relayer address beforehand.
+      operationId: getRelayAddress
+      responses:
+        "200":
+          description: Successfully retrieved relay address
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddressResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /nonce:
+    get:
+      tags:
+        - Nonce
+      summary: Get nonce
+      description: |
+        Gets the current Proxy or Safe nonce for a user.
+        Takes in the user's signer address and the type of nonce to retrieve (PROXY or SAFE).
+        Internally, this calls out to the nonce manager, which will either perform an RPC call
+        to get the nonce from the chain or it will fetch the nonce from the nonce cache.
+      operationId: getNonce
+      parameters:
+        - name: address
+          in: query
+          required: true
+          description: The user's signer address
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{40}$"
+            example: "0x77837466dd64fb52ECD00C737F060d0ff5CCB575"
+        - name: type
+          in: query
+          required: true
+          description: The type of nonce to retrieve
+          schema:
+            type: string
+            enum: [PROXY, SAFE]
+            example: "PROXY"
+      responses:
+        "200":
+          description: Successfully retrieved nonce
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NonceResponse"
+        "400":
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /relay-payload:
+    get:
+      tags:
+        - Nonce
+      summary: Get relay payload
+      description: |
+        Gets the relay payload (relay address + nonce) to be used by a Transaction Request.
+        Takes in query param address, the signer address and type, SAFE or PROXY.
+      operationId: getRelayPayload
+      parameters:
+        - name: address
+          in: query
+          required: true
+          description: The user's signer address
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{40}$"
+            example: "0x77837466dd64fb52ECD00C737F060d0ff5CCB575"
+        - name: type
+          in: query
+          required: true
+          description: The type of nonce to retrieve
+          schema:
+            type: string
+            enum: [PROXY, SAFE]
+            example: "PROXY"
+      responses:
+        "200":
+          description: Successfully retrieved relay payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RelayPayloadResponse"
+        "400":
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /transaction:
+    get:
+      tags:
+        - Transaction
+      summary: Get transaction
+      description: Gets a transaction submitted to the Relayer by transaction ID
+      operationId: getTransaction
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: The transaction ID
+          schema:
+            type: string
+            example: "0190b317-a1d3-7bec-9b91-eeb6dcd3a620"
+      responses:
+        "200":
+          description: Successfully retrieved transaction
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaction"
+        "400":
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /transactions:
+    get:
+      tags:
+        - Transaction
+      summary: Get user transactions
+      description: |
+        Gets the most recent transactions submitted to the Relayer, owned by a specific user.
+        Authenticated using Polymarket auth cookies or Builder API Keys.
+        - If authenticated with Gamma, returns transactions for the authenticated user's address
+        - If authenticated with CLOB, returns transactions for the builder API key
+      operationId: getTransactions
+      security:
+        - GammaAuth: []
+        - ClobAuth: []
+      responses:
+        "200":
+          description: Successfully retrieved transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaction"
+        "401":
+          description: Invalid authorization
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /submit:
+    post:
+      tags:
+        - Transaction
+      summary: Submit transaction
+      description: |
+        Submit a Transaction Request to the Relayer.
+        Authenticated using Polymarket auth cookies or Builder API Keys.
+
+        If authenticated with Gamma, the `owner` field will be automatically set to the authenticated user's address.
+        If authenticated with CLOB, the `builder` field will be automatically set to the builder API key.
+      operationId: submitTransaction
+      security:
+        - GammaAuth: []
+        - ClobAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionRequest"
+            examples:
+              safeTransaction:
+                summary: SAFE transaction example
+                value:
+                  type: "SAFE"
+                  from: "0x6e0c80c90ea6c15917308F820Eac91Ce2724B5b5"
+                  to: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+                  proxyWallet: "0x6d8c4e9aDF5748Af82Dabe2C6225207770d6B4fa"
+                  data: "0x..."
+                  nonce: "60"
+                  signature: "0x01a060c734d7bdf4adde50c4a7e574036b1f8b12890911bdd1c1cfdcd77502381b89fa8a47c36f62a0b9f1cdfee7b260fd8108536db9f6b2089c02637e7de9fc20"
+                  signatureParams:
+                    gasPrice: "0"
+                    operation: "0"
+                    safeTxnGas: "0"
+                    baseGas: "0"
+                    gasToken: "0x0000000000000000000000000000000000000000"
+                    refundReceiver: "0x0000000000000000000000000000000000000000"
+                  metadata: ""
+              proxyTransaction:
+                summary: PROXY transaction example
+                value:
+                  type: "PROXY"
+                  from: "0xe6f3bdb275ef4ad9a14630c7af65469ed09b095a"
+                  to: "0xab45c5a4b0c941a2f231c04c3f49182e1a254052"
+                  proxyWallet: "0xee07d558c79666232452C3bD88c0704f0837F564"
+                  data: "0x34ee97910000000000000000000000000000000000000000000000000000000000000020..."
+                  nonce: "3"
+                  signature: "0x23c34c626796bab7a7f799888629f75fe75243f6a8fd71e8bcdb65621b929100766a442ce5f1c2b4495e0518ddfd2b0d7c72e53ce3c01787e0623af2ae6950f11c"
+                  signatureParams:
+                    relayerFee: "1"
+                    gasPrice: "1"
+                    gasLimit: "259463"
+                    relayHub: "0xd216153c06e857cd7f72665e0af1d7d82172f494"
+                    relay: "0xae700edfd9ab986395f3999fe11177b9903a52f1"
+                  metadata: ""
+      responses:
+        "200":
+          description: Transaction successfully submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionResponse"
+        "400":
+          description: Invalid transaction request payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                invalidPayload:
+                  value:
+                    error: "invalid transaction request payload"
+                invalidProxyWallet:
+                  value:
+                    error: "invalid 'proxyWallet' field"
+                invalidSignature:
+                  value:
+                    error: "invalid signature"
+        "401":
+          description: Invalid authorization
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Quota exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                internalError:
+                  value:
+                    error: "error inserting transaction"
+
+  /deployed:
+    get:
+      tags:
+        - Deployment
+      summary: Check deployment status
+      description: Returns a payload that determines if a safe is deployed. Takes in the user's Polymarket proxy address.
+      operationId: getDeployed
+      parameters:
+        - name: address
+          in: query
+          required: true
+          description: The user's Polymarket proxy address
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{40}$"
+            example: "0x6d8c4e9aDF5748Af82Dabe2C6225207770d6B4fa"
+      responses:
+        "200":
+          description: Successfully retrieved deployment status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeployedResponse"
+        "400":
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     SendOrder:
@@ -1148,6 +1482,318 @@ components:
           type: string
           description: Asset ID (token ID)
           example: "0xabc123def456..."
+    AddressResponse:
+      type: object
+      required:
+        - address
+      properties:
+        address:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: The relayer address
+          example: "0x4da9395388791c22684e03779c3de10934eb9cfb"
+
+    NonceResponse:
+      type: object
+      required:
+        - nonce
+      properties:
+        nonce:
+          type: string
+          description: The current nonce value
+          example: "31"
+
+    RelayPayloadResponse:
+      type: object
+      required:
+        - address
+        - nonce
+      properties:
+        address:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: The relayer address
+          example: "0x4da9395388791c22684e03779c3de10934eb9cfb"
+        nonce:
+          type: string
+          description: The current nonce value
+          example: "31"
+
+    DeployedResponse:
+      type: object
+      required:
+        - deployed
+      properties:
+        deployed:
+          type: boolean
+          description: Whether the safe is deployed
+          example: true
+
+    TransactionRequest:
+      type: object
+      required:
+        - type
+        - from
+        - to
+        - proxyWallet
+        - data
+        - nonce
+        - signature
+        - signatureParams
+      properties:
+        type:
+          type: string
+          enum: [PROXY, SAFE, SAFE-CREATE]
+          description: The type of transaction
+          example: "SAFE"
+        from:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: The sender address
+          example: "0x6e0c80c90ea6c15917308F820Eac91Ce2724B5b5"
+        to:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: The recipient address
+          example: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+        proxyWallet:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: The proxy wallet address
+          example: "0x6d8c4e9aDF5748Af82Dabe2C6225207770d6B4fa"
+        value:
+          type: string
+          description: The transaction value in wei (hex string)
+          example: "0"
+        data:
+          type: string
+          pattern: "^0x[a-fA-F0-9]*$"
+          description: The transaction data (hex string)
+          example: "0x..."
+        nonce:
+          type: string
+          description: The transaction nonce
+          example: "60"
+        signature:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{130}$"
+          description: The transaction signature (hex string with 0x prefix)
+          example: "0x01a060c734d7bdf4adde50c4a7e574036b1f8b12890911bdd1c1cfdcd77502381b89fa8a47c36f62a0b9f1cdfee7b260fd8108536db9f6b2089c02637e7de9fc20"
+        signatureParams:
+          $ref: "#/components/schemas/SignatureParams"
+        metadata:
+          type: string
+          description: Optional metadata string (sanitized for ASCII only, no profanity)
+          example: ""
+
+    SignatureParams:
+      type: object
+      description: |
+        Signature parameters that vary based on transaction type.
+        For PROXY transactions, use relayHub-specific parameters.
+        For SAFE transactions, use Safe-specific parameters.
+        For SAFE-CREATE transactions, use Safe creation parameters.
+      properties:
+        # Common parameters
+        gasPrice:
+          type: string
+          description: Gas price in wei (hex string)
+          example: "0"
+
+        # RelayHub specific (PROXY transactions)
+        relayerFee:
+          type: string
+          description: Relayer fee in wei (hex string). Required for PROXY transactions.
+          example: "1"
+        gasLimit:
+          type: string
+          description: Gas limit. Required for PROXY transactions.
+          example: "259463"
+        relayHub:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: RelayHub contract address. Required for PROXY transactions.
+          example: "0xd216153c06e857cd7f72665e0af1d7d82172f494"
+        relay:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: Relayer address. Required for PROXY transactions.
+          example: "0xae700edfd9ab986395f3999fe11177b9903a52f1"
+
+        # SAFE specific parameters
+        operation:
+          type: string
+          description: Operation type (0 = CALL, 1 = DELEGATECALL). Required for SAFE transactions.
+          example: "0"
+        safeTxnGas:
+          type: string
+          description: Safe transaction gas. Required for SAFE transactions.
+          example: "0"
+        baseGas:
+          type: string
+          description: Base gas. Required for SAFE transactions.
+          example: "0"
+        gasToken:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: Gas token address. Required for SAFE transactions.
+          example: "0x0000000000000000000000000000000000000000"
+        refundReceiver:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: Refund receiver address. Required for SAFE transactions.
+          example: "0x0000000000000000000000000000000000000000"
+
+        # SAFE-CREATE specific parameters
+        paymentToken:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: Payment token address. Required for SAFE-CREATE transactions.
+          example: "0x0000000000000000000000000000000000000000"
+        payment:
+          type: string
+          description: Payment amount in wei (hex string). Required for SAFE-CREATE transactions.
+          example: "0"
+        paymentReceiver:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: Payment receiver address. Required for SAFE-CREATE transactions.
+          example: "0x0000000000000000000000000000000000000000"
+
+    TransactionResponse:
+      type: object
+      required:
+        - transactionID
+        - state
+      properties:
+        transactionID:
+          type: string
+          description: Unique transaction identifier
+          example: "0190b317-a1d3-7bec-9b91-eeb6dcd3a620"
+        transactionHash:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{64}$"
+          description: Blockchain transaction hash (available after execution)
+          example: "0x38cbfbeae8fffa4e2b187ee5978d3ee9cafc53af0363ed90a35b7ea9016535d8"
+        state:
+          type: string
+          enum:
+            [
+              STATE_NEW,
+              STATE_EXECUTED,
+              STATE_MINED,
+              STATE_CONFIRMED,
+              STATE_INVALID,
+              STATE_FAILED,
+            ]
+          description: Current state of the transaction
+          example: "STATE_NEW"
+
+    Transaction:
+      type: object
+      required:
+        - transactionID
+        - transactionHash
+        - from
+        - to
+        - proxyAddress
+        - data
+        - nonce
+        - value
+        - signature
+        - state
+        - type
+        - owner
+        - metadata
+        - createdAt
+        - updatedAt
+      properties:
+        transactionID:
+          type: string
+          description: Unique transaction identifier
+          example: "0190b317-a1d3-7bec-9b91-eeb6dcd3a620"
+        transactionHash:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{64}$"
+          description: Blockchain transaction hash
+          example: "0x38cbfbeae8fffa4e2b187ee5978d3ee9cafc53af0363ed90a35b7ea9016535d8"
+        from:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: Sender address
+          example: "0x6e0c80c90ea6c15917308f820eac91ce2724b5b5"
+        to:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: Recipient address
+          example: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"
+        proxyAddress:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: Proxy wallet address
+          example: "0x6d8c4e9adf5748af82dabe2c6225207770d6b4fa"
+        data:
+          type: string
+          pattern: "^0x[a-fA-F0-9]*$"
+          description: Transaction data (hex string)
+          example: "0x..."
+        nonce:
+          type: string
+          description: Transaction nonce
+          example: "60"
+        value:
+          type: string
+          description: Transaction value in wei
+          example: ""
+        signature:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{130}$"
+          description: Transaction signature (hex string)
+          example: "0x01a060c734d7bdf4adde50c4a7e574036b1f8b12890911bdd1c1cfdcd77502381b89fa8a47c36f62a0b9f1cdfee7b260fd8108536db9f6b2089c02637e7de9fc20"
+        state:
+          type: string
+          enum:
+            [
+              STATE_NEW,
+              STATE_EXECUTED,
+              STATE_MINED,
+              STATE_CONFIRMED,
+              STATE_INVALID,
+              STATE_FAILED,
+            ]
+          description: Current state of the transaction
+          example: "STATE_CONFIRMED"
+        type:
+          type: string
+          enum: [PROXY, SAFE, SAFE-CREATE]
+          description: Transaction type
+          example: "SAFE"
+        owner:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: Owner address (set automatically for Gamma auth)
+          example: "0x6e0c80c90ea6c15917308f820eac91ce2724b5b5"
+        builder:
+          type: string
+          description: Builder API key (set automatically for CLOB auth)
+          example: "builder-api-key-123"
+        metadata:
+          type: string
+          description: Optional metadata
+          example: ""
+        createdAt:
+          type: string
+          format: date-time
+          description: Transaction creation timestamp
+          example: "2024-07-14T21:13:08.819782Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-07-14T21:13:46.576639Z"
+        sigParams:
+          $ref: "#/components/schemas/SignatureParams"
+          description: Signature parameters (optional in response)
     ErrorResponse:
       type: object
       required:
