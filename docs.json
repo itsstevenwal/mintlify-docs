@@ -48,6 +48,7 @@
             "pages": [
               {
                 "group": "Profile",
+                "expanded": true,
                 "pages": [
                   "api-reference/endpoint/get-time",
                   "api-reference/endpoint/get-holders",
@@ -63,6 +64,7 @@
               },
               {
                 "group": "Events",
+                "expanded": true,
                 "pages": [
                   "api-reference/endpoint/get-event-by-id",
                   "api-reference/endpoint/get-event-by-slug",
@@ -71,6 +73,7 @@
               },
               {
                 "group": "Markets",
+                "expanded": true,
                 "pages": [
                   "api-reference/endpoint/get-markets",
                   "api-reference/endpoint/get-market-by-id",
@@ -100,12 +103,14 @@
               },
               {
                 "group": "Creators",
+                "expanded": true,
                 "pages": [
                   "api-reference/endpoint/get-creators"
                 ]
               },
               {
                 "group": "Comments",
+                "expanded": true,
                 "pages": [
                   "api-reference/endpoint/get-comments",
                   "api-reference/endpoint/get-comment-by-id",
@@ -114,6 +119,7 @@
               },
               {
                 "group": "Series",
+                "expanded": true,
                 "pages": [
                   "api-reference/endpoint/get-series",
                   "api-reference/endpoint/get-series-by-id",
@@ -122,6 +128,7 @@
               },
               {
                 "group": "Tags",
+                "expanded": true,
                 "pages": [
                   "api-reference/endpoint/get-tag-by-id",
                   "api-reference/endpoint/get-tag-by-slug",
@@ -131,6 +138,7 @@
               },
               {
                 "group": "Teams",
+                "expanded": true,
                 "pages": [
                   "api-reference/endpoint/get-teams",
                   "api-reference/endpoint/get-team-by-id"
@@ -138,12 +146,14 @@
               },
               {
                 "group": "Sports",
+                "expanded": true,
                 "pages": [
                   "api-reference/endpoint/get-sports"
                 ]
               },
               {
                 "group": "Search",
+                "expanded": true,
                 "pages": [
                   "api-reference/endpoint/get-public-search"
                 ]
