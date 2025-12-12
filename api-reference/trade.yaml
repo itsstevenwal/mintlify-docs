@@ -1183,6 +1183,3 @@ components:
       in: header
       name: POLY_TIMESTAMP
       description: Unix timestamp of the request
-    bearerAuth:
-      type: http
-      scheme: bearer

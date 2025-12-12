@@ -1,0 +1,267 @@
+openapi: 3.1.0
+info:
+  title: Polymarket API
+  description: Polymarket API Reference
+  license:
+    name: MIT
+  version: 1.0.0
+servers:
+  - url: api.polymarket.com
+tags:
+  - name: Account
+    description: Account endpoints
+paths:
+  /auth/api-key:
+    post:
+      summary: Create API key
+      description: |
+        Creates a new API key for the authenticated Ethereum address.
+        The API key is deterministically generated from the address and nonce.
+      operationId: createApiKey
+      tags:
+        - Account
+      security:
+        - polyAddress: []
+          polySignature1: []
+          polyTimestamp: []
+          polyNonce: []
+      responses:
+        "200":
+          description: API key successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiKeyResponse"
+              example:
+                apiKey: "f4f247b7-4ac7-ff29-a152-04fda0a8755a"
+                secret: "base64-encoded-secret"
+                passphrase: "hex-encoded-passphrase"
+        "400":
+          description: Bad request - Could not create API key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Could not create api key"
+        "401":
+          description: Unauthorized - Invalid L1 headers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Invalid L1 headers"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Internal server error"
+    delete:
+      summary: Delete API key
+      description: |
+        Deletes the API key used for authentication.
+        The API key to delete is determined from the authentication headers.
+      operationId: deleteApiKey
+      tags:
+        - Account
+      security:
+        - polyApiKey: []
+          polyAddress: []
+          polySignature2: []
+          polyPassphrase: []
+          polyTimestamp: []
+      responses:
+        "200":
+          description: API key successfully deleted
+          content:
+            application/json:
+              schema:
+                type: string
+              example: "OK"
+        "401":
+          description: Unauthorized - Invalid API key or authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Invalid API key"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Could not delete API key"
+
+  /auth/api-keys:
+    get:
+      summary: Get API keys
+      description: |
+        Retrieves all API keys for the authenticated user.
+      operationId: getApiKeys
+      tags:
+        - Account
+      security:
+        - polyAddress: []
+          polySignature1: []
+          polyTimestamp: []
+          polyNonce: []
+      responses:
+        "200":
+          description: Successfully retrieved API keys
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiKeysResponse"
+              example:
+                apiKeys:
+                  - "f4f247b7-4ac7-ff29-a152-04fda0a8755a"
+                  - "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        "401":
+          description: Unauthorized - Invalid API key or authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Invalid API key"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Could not retrieve API keys"
+  /auth/derive-api-key:
+    get:
+      summary: Derive API key
+      description: |
+        Derives an existing API key from an Ethereum address and nonce.
+        The API key must have been previously created using the same address and nonce.
+      operationId: deriveApiKey
+      tags:
+        - Account
+      security:
+        - polyAddress: []
+          polySignature1: []
+          polyTimestamp: []
+          polyNonce: []
+      responses:
+        "200":
+          description: API key successfully derived
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiKeyResponse"
+              example:
+                apiKey: "f4f247b7-4ac7-ff29-a152-04fda0a8755a"
+                secret: "base64-encoded-secret"
+                passphrase: "hex-encoded-passphrase"
+        "400":
+          description: Bad request - Could not derive API key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Could not derive api key!"
+        "401":
+          description: Unauthorized - Invalid L1 headers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Invalid L1 headers"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Internal server error"
+components:
+  schemas:
+    ApiKeyResponse:
+      type: object
+      required:
+        - apiKey
+        - secret
+        - passphrase
+      properties:
+        apiKey:
+          type: string
+          description: UUID of the API key
+          example: "f4f247b7-4ac7-ff29-a152-04fda0a8755a"
+        secret:
+          type: string
+          description: Base64-encoded secret key for HMAC authentication
+        passphrase:
+          type: string
+          description: Hex-encoded passphrase for secret decryption
+    ApiKeysResponse:
+      type: object
+      required:
+        - apiKeys
+      properties:
+        apiKeys:
+          type: array
+          description: Array of API key UUIDs
+          items:
+            type: string
+          example:
+            - "f4f247b7-4ac7-ff29-a152-04fda0a8755a"
+            - "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+
+  securitySchemes:
+    polyAddress:
+      type: apiKey
+      in: header
+      name: POLY_ADDRESS
+      description: Ethereum address associated with the API key
+    polySignature1:
+      type: apiKey
+      in: header
+      name: POLY_SIGNATURE
+      description: EIP-712 signature of the request for L1 Authentication
+    polyTimestamp:
+      type: apiKey
+      in: header
+      name: POLY_TIMESTAMP
+      description: Unix timestamp of the request
+    polyNonce:
+      type: apiKey
+      in: header
+      name: POLY_NONCE
+      description: Nonce of the request
+    polyApiKey:
+      type: apiKey
+      in: header
+      name: POLY_API_KEY
+      description: Your API key
+    polySignature2:
+      type: apiKey
+      in: header
+      name: POLY_SIGNATURE
+      description: HMAC signature of the request for L2 Authentication
+    polyPassphrase:
+      type: apiKey
+      in: header
+      name: POLY_PASSPHRASE
+      description: API key passphrase

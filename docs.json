@@ -31,6 +31,15 @@
               "api-reference/endpoint/cancel-all",
               "api-reference/endpoint/cancel-all-markets"
             ]
+          },
+          {
+            "group": "Account",
+            "pages": [
+              "api-reference/endpoint/create-api-key",
+              "api-reference/endpoint/get-api-keys",
+              "api-reference/endpoint/derive-api-key",
+              "api-reference/endpoint/remove-api-key"
+            ]
           }
         ]
       }
