@@ -1780,7 +1780,85 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /oi:
+    get:
+      summary: Get open interest
+      description: |
+        Fetches open interest. If market query param is not given, returns global OI.
+        Else returns OI for the market(s).
+      operationId: getOpenInterest
+      tags:
+        - Misc
+      parameters:
+        - name: market
+          in: query
+          required: false
+          description: |
+            The conditionId of the market. Supports multiple comma-separated values.
+            Optional. If not provided, returns global open interest.
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{64}$"
+          example: "0xfad14932325af166b81190e1f3c0d7ed892357551e5a77f064813f2de5a1b40a"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenInterestPayload"
+        "400":
+          description: Bad Request - Missing or invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
+  /live-volume:
+    get:
+      summary: Get live volume for an event
+      description: Fetches live volume for an event.
+      operationId: getLiveVolume
+      tags:
+        - Misc
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: The gamma id of the event
+          schema:
+            type: integer
+            minimum: 1
+          example: 903193
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LiveVolumePayload"
+        "400":
+          description: Bad Request - Missing or invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     BookRequest:
@@ -2398,6 +2476,59 @@ components:
           type: integer
           minimum: 0
           example: 245
+
+    OpenInterestPayload:
+      type: object
+      description: Open interest for a market
+      required:
+        - market
+        - value
+      properties:
+        market:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{64}$"
+          example: "0xfad14932325af166b81190e1f3c0d7ed892357551e5a77f064813f2de5a1b40a"
+        value:
+          type: number
+          format: float
+          minimum: 0
+          example: 7788.489142
+
+    LiveVolumePayload:
+      type: object
+      description: Live volume for an event
+      required:
+        - total
+        - markets
+      properties:
+        total:
+          type: number
+          format: float
+          minimum: 0
+          example: 482304287.669221
+        markets:
+          type: array
+          description: List of markets with their volume values
+          items:
+            $ref: "#/components/schemas/MarketVolumePayload"
+
+    MarketVolumePayload:
+      type: object
+      description: Volume for a specific market
+      required:
+        - market
+        - value
+      properties:
+        market:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{64}$"
+          example: "0x230144e34a84dfd0ebdc6de7fde37780e28154f6f84dd8880c7f0e58d302d448"
+        value:
+          type: number
+          format: float
+          minimum: 0
+          example: 169566798.327945
+
     ErrorResponse:
       type: object
       required:
