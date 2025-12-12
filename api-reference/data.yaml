@@ -1156,6 +1156,631 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 error: "Invalid payload"
+  /holders:
+    get:
+      summary: Get top holders of a market
+      description: |
+        Fetches the top n holders of a market. Results are cached with a 1m TTL.
+      operationId: getHolders
+      tags:
+        - Holders
+      parameters:
+        - name: market
+          in: query
+          required: true
+          description: |
+            The market (conditionId) to query. Supports multiple comma-separated values.
+            Must be a valid hash string (66 characters starting with 0x).
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{64}$"
+          example: "0xf35e0d396dd4c480166b16515c52adb2e6379d019d6787321853af729ac5aa09"
+        - name: limit
+          in: query
+          required: false
+          description: |
+            Maximum number of holders to return per market.
+            Defaults to 100 if not provided. Maximum value is 500.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 100
+          example: 3
+        - name: minBalance
+          in: query
+          required: false
+          description: |
+            Minimum balance threshold for holders.
+            Defaults to 1 if not provided. Maximum value is 999999.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 999999
+            default: 1
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MetaHolderPayload"
+              example:
+                - token: "106257706801662534998430586504972304436607192076959334678280036075993819880149"
+                  holders:
+                    - proxyWallet: "0x6d03ae5fceee2b4dfd974641723062e8a2ff5d3f"
+                      bio: ""
+                      asset: "106257706801662534998430586504972304436607192076959334678280036075993819880149"
+                      pseudonym: "Worthless-Scarf"
+                      amount: 952.173037
+                      displayUsernamePublic: true
+                      outcomeIndex: 0
+                      name: "0x85Df96504260B614E4B78af5CDA1dF4E05CF3fD7"
+                      profileImage: ""
+                      profileImageOptimized: ""
+                      verified: false
+                    - proxyWallet: "0x3e6ebb4adc9f53373089caf3f3d102a4b0576ef6"
+                      bio: ""
+                      asset: "106257706801662534998430586504972304436607192076959334678280036075993819880149"
+                      pseudonym: "Long-Disaster"
+                      amount: 333
+                      displayUsernamePublic: true
+                      outcomeIndex: 0
+                      name: "69696969"
+                      profileImage: ""
+                      profileImageOptimized: ""
+                      verified: false
+        "400":
+          description: Bad Request - Missing or invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                missingMarket:
+                  value:
+                    error: "required query param 'market' not provided"
+                invalidParams:
+                  value:
+                    error: "invalid query parameters"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Internal server error"
+
+  /positions:
+    get:
+      summary: Get current positions for a user
+      description: Fetches current positions for a user (address)
+      operationId: getPositions
+      tags:
+        - Positions
+      parameters:
+        - name: user
+          in: query
+          required: true
+          description: The address of the user in question
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{40}$"
+          example: "0x6af75d4e4aaf700450efbac3708cce1665810ff1"
+        - name: market
+          in: query
+          required: false
+          description: |
+            The conditionId of the market. Supports multiple comma-separated values.
+            Cannot be used with the eventId param.
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{64}$"
+        - name: eventId
+          in: query
+          required: false
+          description: |
+            The event id. Supports multiple comma-separated values.
+            Returns positions for all markets for those event ids. Cannot be used with the market param.
+          schema:
+            type: string
+        - name: sizeThreshold
+          in: query
+          required: false
+          description: The minimum position size to be included in the response
+          schema:
+            type: number
+            format: float
+            default: 1.0
+            minimum: 0
+        - name: redeemable
+          in: query
+          required: false
+          description: Boolean flag, returns only positions that can be redeemed
+          schema:
+            type: boolean
+        - name: mergeable
+          in: query
+          required: false
+          description: Boolean flag, returns only positions that can be merged
+          schema:
+            type: boolean
+        - name: title
+          in: query
+          required: false
+          description: Filter by market title
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The max number of positions to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 100
+        - name: offset
+          in: query
+          required: false
+          description: The starting index for pagination
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 10000
+            default: 0
+        - name: sortBy
+          in: query
+          required: false
+          description: The sort criteria
+          schema:
+            type: string
+            enum:
+              [
+                TOKENS,
+                CURRENT,
+                INITIAL,
+                CASHPNL,
+                PERCENTPNL,
+                TITLE,
+                RESOLVING,
+                PRICE,
+                AVGPRICE,
+              ]
+            default: TOKENS
+        - name: sortDirection
+          in: query
+          required: false
+          description: The sort direction
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: DESC
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PositionPayload"
+        "400":
+          description: Bad Request - Missing or invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /trades:
+    get:
+      summary: Get trades
+      description: Fetches trades. Ordered by timestamp in descending order (most recent trade first)
+      operationId: getTrades
+      tags:
+        - Trades
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: The max number of trades to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 100
+        - name: offset
+          in: query
+          required: false
+          description: The starting index for pagination
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1000
+            default: 0
+        - name: takerOnly
+          in: query
+          required: false
+          description: Flag that determines whether to return only taker orders
+          schema:
+            type: boolean
+            default: true
+        - name: filterType
+          in: query
+          required: false
+          description: Flag indicating whether to filter trades by a parameter
+          schema:
+            type: string
+            enum: [CASH, TOKENS]
+        - name: filterAmount
+          in: query
+          required: false
+          description: The amount to filter by. Related to filterType
+          schema:
+            type: number
+            format: float
+            minimum: 0.01
+        - name: market
+          in: query
+          required: false
+          description: |
+            The conditionId of the market. Supports multiple comma-separated values.
+            Cannot be used with the eventId param.
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{64}$"
+        - name: eventId
+          in: query
+          required: false
+          description: |
+            The event id. Supports multiple comma-separated values.
+            Returns trades for all markets for those event ids. Cannot be used with the market param.
+          schema:
+            type: string
+        - name: user
+          in: query
+          required: false
+          description: The address of the user in question
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{40}$"
+        - name: side
+          in: query
+          required: false
+          description: The side of the trade
+          schema:
+            type: string
+            enum: [BUY, SELL]
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TradePayload"
+        "400":
+          description: Bad Request - Missing or invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /activity:
+    get:
+      summary: Get activity for a user
+      description: Fetches onchain activity for a user. Ordered by timestamp in descending order (most recent event first)
+      operationId: getActivity
+      tags:
+        - Activity
+      parameters:
+        - name: user
+          in: query
+          required: true
+          description: The address of the user in question
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{40}$"
+          example: "0x5bbdda8c2447fd63f0e8dc8a3712352fc81b9ec2"
+        - name: limit
+          in: query
+          required: false
+          description: The max number of activities to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 100
+        - name: offset
+          in: query
+          required: false
+          description: The starting index for pagination
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1000
+            default: 0
+        - name: market
+          in: query
+          required: false
+          description: |
+            The conditionId of the market. Supports multiple comma-separated values.
+            Cannot be used with the eventId param.
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{64}$"
+        - name: eventId
+          in: query
+          required: false
+          description: |
+            The event id. Supports multiple comma-separated values.
+            Returns activities for all markets for those event ids. Cannot be used with the market param.
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          description: |
+            The type of activity to filter by. Supports multiple comma-separated values.
+            Must be TRADE, SPLIT, MERGE, REDEEM, REWARD, CONVERSION, DEPOSIT, WITHDRAWAL, or YIELD
+          schema:
+            type: string
+        - name: start
+          in: query
+          required: false
+          description: The start timestamp (in seconds) on which to filter by
+          schema:
+            type: integer
+        - name: end
+          in: query
+          required: false
+          description: The end timestamp (in seconds) on which to filter by
+          schema:
+            type: integer
+        - name: side
+          in: query
+          required: false
+          description: The side of the trade. Only applies to Trades
+          schema:
+            type: string
+            enum: [BUY, SELL]
+        - name: sortBy
+          in: query
+          required: false
+          description: The sort criteria
+          schema:
+            type: string
+            enum: [TIMESTAMP, TOKENS, CASH]
+            default: TIMESTAMP
+        - name: sortDirection
+          in: query
+          required: false
+          description: The sort direction
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: DESC
+        - name: excludeLostRedeems
+          in: query
+          required: false
+          description: Exclude redeems of size 0
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityPayload"
+        "400":
+          description: Bad Request - Missing or invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /value:
+    get:
+      summary: Get total value of user positions
+      description: Fetches the total value of a user's positions
+      operationId: getPositionsValue
+      tags:
+        - Positions
+      parameters:
+        - name: user
+          in: query
+          required: true
+          description: The address of the user in question
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{40}$"
+          example: "0x9d84ce0306f8551e02efef1680475fc0f1dc1344"
+        - name: market
+          in: query
+          required: false
+          description: The conditionId of the market. Supports multiple comma-separated values
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{64}$"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ValuePayload"
+        "400":
+          description: Bad Request - Missing or invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /closed-positions:
+    get:
+      summary: Get closed positions for a user
+      description: Fetches closed positions for a user (address)
+      operationId: getClosedPositions
+      tags:
+        - Positions
+      parameters:
+        - name: user
+          in: query
+          required: true
+          description: The address of the user in question
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{40}$"
+          example: "0x6af75d4e4aaf700450efbac3708cce1665810ff1"
+        - name: market
+          in: query
+          required: false
+          description: |
+            The conditionId of the market. Supports multiple comma-separated values.
+            Cannot be used with the eventId param.
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{64}$"
+        - name: eventId
+          in: query
+          required: false
+          description: |
+            The event id. Supports multiple comma-separated values.
+            Returns positions for all markets for those event ids. Cannot be used with the market param.
+          schema:
+            type: string
+        - name: title
+          in: query
+          required: false
+          description: Filter by market title
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: The max number of positions to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 10
+        - name: offset
+          in: query
+          required: false
+          description: The starting index for pagination
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100000
+            default: 0
+        - name: sortBy
+          in: query
+          required: false
+          description: The sort criteria
+          schema:
+            type: string
+            enum: [REALIZEDPNL, AVGPRICE, PRICE, TITLE, TIMESTAMP]
+            default: REALIZEDPNL
+        - name: sortDirection
+          in: query
+          required: false
+          description: The sort direction
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: DESC
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ClosedPositionPayload"
+        "400":
+          description: Bad Request - Missing or invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /traded:
+    get:
+      summary: Get number of markets traded by a user
+      description: Fetches the number of markets traded by a user. Results are cached with a 5m TTL.
+      operationId: getMarketsTraded
+      tags:
+        - Misc
+      parameters:
+        - name: user
+          in: query
+          required: true
+          description: The address of the user in question
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{40}$"
+          example: "0x64310c79be3502dd17e88d9ca7df781700a66f1f"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradedPayload"
+        "400":
+          description: Bad Request - Missing or invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     BookRequest:
@@ -1274,6 +1899,505 @@ components:
           type: string
           description: Order size
           example: "100"
+    MetaHolderPayload:
+      type: object
+      description: Container for holders of a specific token/market
+      required:
+        - token
+        - holders
+      properties:
+        token:
+          type: string
+          description: The token/asset identifier (conditionId)
+          example: "106257706801662534998430586504972304436607192076959334678280036075993819880149"
+        holders:
+          type: array
+          description: List of holders for this token, sorted by amount (descending)
+          items:
+            $ref: "#/components/schemas/HolderPayload"
+
+    HolderPayload:
+      type: object
+      description: Information about a holder of a market token
+      required:
+        - proxyWallet
+        - asset
+        - amount
+        - outcomeIndex
+        - displayUsernamePublic
+        - verified
+      properties:
+        proxyWallet:
+          type: string
+          description: The proxy wallet address of the holder
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          example: "0x6d03ae5fceee2b4dfd974641723062e8a2ff5d3f"
+        bio:
+          type: string
+          description: Bio text of the holder's profile
+        asset:
+          type: string
+          description: The asset/token identifier
+          example: "106257706801662534998430586504972304436607192076959334678280036075993819880149"
+        pseudonym:
+          type: string
+          description: The pseudonym/username of the holder
+          example: "Worthless-Scarf"
+        amount:
+          type: number
+          format: float
+          description: The amount of tokens held
+          minimum: 0
+          example: 952.173037
+        displayUsernamePublic:
+          type: boolean
+          description: Whether the username should be displayed publicly
+        outcomeIndex:
+          type: integer
+          description: The outcome index for this market
+          minimum: 0
+        name:
+          type: string
+          description: The display name of the holder
+          example: "0x85Df96504260B614E4B78af5CDA1dF4E05CF3fD7"
+        profileImage:
+          type: string
+          description: URL to the profile image
+        profileImageOptimized:
+          type: string
+          description: URL to the optimized profile image
+        verified:
+          type: boolean
+          description: Whether the holder is verified
+
+    PositionPayload:
+      type: object
+      description: Information about a user's position
+      required:
+        - proxyWallet
+        - asset
+        - conditionId
+        - size
+        - avgPrice
+        - initialValue
+        - currentValue
+        - cashPnl
+        - percentPnl
+        - totalBought
+        - realizedPnl
+        - percentRealizedPnl
+        - curPrice
+        - redeemable
+        - mergeable
+        - title
+        - slug
+        - icon
+        - eventSlug
+        - eventId
+        - outcome
+        - outcomeIndex
+        - oppositeOutcome
+        - oppositeAsset
+        - endDate
+        - negativeRisk
+      properties:
+        proxyWallet:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          example: "0x6af75d4e4aaf700450efbac3708cce1665810ff1"
+        asset:
+          type: string
+          example: "65396714035221124737265515219989336303267439172398528294132309725835127126381"
+        conditionId:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{64}$"
+          example: "0xd007d71fd17b0913b9d7ff198f617caa96a9e4aab1bed7d6f9abd76bb17dd507"
+        size:
+          type: number
+          format: float
+          minimum: 0
+          example: 90548.087076
+        avgPrice:
+          type: number
+          format: float
+          minimum: 0
+          example: 0.020628
+        initialValue:
+          type: number
+          format: float
+          example: 1867.825940203728
+        currentValue:
+          type: number
+          format: float
+          example: 5840.351616402
+        cashPnl:
+          type: number
+          format: float
+          example: 3972.525676198273
+        percentPnl:
+          type: number
+          format: float
+          example: 212.6817917393834
+        totalBought:
+          type: number
+          format: float
+          minimum: 0
+          example: 109548.077076
+        realizedPnl:
+          type: number
+          format: float
+          example: -894.398503
+        percentRealizedPnl:
+          type: number
+          format: float
+          example: 158.45030351384662
+        curPrice:
+          type: number
+          format: float
+          minimum: 0
+          example: 0.0645
+        redeemable:
+          type: boolean
+        mergeable:
+          type: boolean
+        title:
+          type: string
+          example: "2024 presidential election: GOP wins by 155-214"
+        slug:
+          type: string
+          example: "2024-presidential-election-gop-wins-by-155-214"
+        icon:
+          type: string
+          example: "https://polymarket-upload.s3.us-east-2.amazonaws.com/goplogo1.png"
+        eventSlug:
+          type: string
+          example: "electoral-college-margin-of-victory-in-the-2024-presidential-election"
+        eventId:
+          type: string
+          example: "903211"
+        outcome:
+          type: string
+          example: "Yes"
+        outcomeIndex:
+          type: integer
+          minimum: 0
+        oppositeOutcome:
+          type: string
+          example: "No"
+        oppositeAsset:
+          type: string
+          example: "52050340002752890901105180731616786223343503725333424175929498217562194356499"
+        endDate:
+          type: string
+          example: "2024-11-05"
+        negativeRisk:
+          type: boolean
+
+    ClosedPositionPayload:
+      type: object
+      description: Information about a user's closed position
+      required:
+        - proxyWallet
+        - asset
+        - conditionId
+        - avgPrice
+        - totalBought
+        - realizedPnl
+        - curPrice
+        - title
+        - slug
+        - icon
+        - eventSlug
+        - outcome
+        - outcomeIndex
+        - oppositeOutcome
+        - oppositeAsset
+        - endDate
+        - timestamp
+      properties:
+        proxyWallet:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          example: "0x6af75d4e4aaf700450efbac3708cce1665810ff1"
+        asset:
+          type: string
+          example: "65396714035221124737265515219989336303267439172398528294132309725835127126381"
+        conditionId:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{64}$"
+          example: "0xd007d71fd17b0913b9d7ff198f617caa96a9e4aab1bed7d6f9abd76bb17dd507"
+        avgPrice:
+          type: number
+          format: float
+          minimum: 0
+          example: 0.020628
+        totalBought:
+          type: number
+          format: float
+          minimum: 0
+          example: 109548.077076
+        realizedPnl:
+          type: number
+          format: float
+          example: -894.398503
+        curPrice:
+          type: number
+          format: float
+          minimum: 0
+          example: 0.0645
+        title:
+          type: string
+          example: "2024 presidential election: GOP wins by 155-214"
+        slug:
+          type: string
+          example: "2024-presidential-election-gop-wins-by-155-214"
+        icon:
+          type: string
+          example: "https://polymarket-upload.s3.us-east-2.amazonaws.com/goplogo1.png"
+        eventSlug:
+          type: string
+          example: "electoral-college-margin-of-victory-in-the-2024-presidential-election"
+        outcome:
+          type: string
+          example: "Yes"
+        outcomeIndex:
+          type: integer
+          minimum: 0
+        oppositeOutcome:
+          type: string
+          example: "No"
+        oppositeAsset:
+          type: string
+          example: "52050340002752890901105180731616786223343503725333424175929498217562194356499"
+        endDate:
+          type: string
+          example: "2024-11-05"
+        timestamp:
+          type: integer
+          format: int64
+          example: 1709921837
+
+    TradePayload:
+      type: object
+      description: Information about a trade
+      required:
+        - proxyWallet
+        - side
+        - asset
+        - conditionId
+        - size
+        - price
+        - timestamp
+        - slug
+        - icon
+        - eventSlug
+        - outcome
+        - outcomeIndex
+        - name
+        - pseudonym
+        - bio
+        - profileImage
+        - profileImageOptimized
+        - transactionHash
+      properties:
+        proxyWallet:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          example: "0x1c4de49737068ca8bb0e0e86e3bdd7b8b7deb7b3"
+        side:
+          type: string
+          enum: [BUY, SELL]
+          example: "BUY"
+        asset:
+          type: string
+          example: "80072298785077085713714011267899485823303448408928020311127526826030183292540"
+        conditionId:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{64}$"
+          example: "0x52880d7713a79334e38760fa98e1d95c90a184057dd0ccab6ff9f99fc50d2c6e"
+        size:
+          type: number
+          format: float
+          minimum: 0
+          example: 1.12359
+        price:
+          type: number
+          format: float
+          minimum: 0
+          example: 0.8899999109995639
+        timestamp:
+          type: integer
+          format: int64
+          example: 1694544800
+        slug:
+          type: string
+          example: "btc-above-23456pt78-at-end-of-september"
+        icon:
+          type: string
+          example: "https://polymarket-upload.s3.us-east-2.amazonaws.com/bitcoin.png"
+        eventSlug:
+          type: string
+          example: "btc-price-on-sep-30"
+        outcome:
+          type: string
+          example: "Yes"
+        outcomeIndex:
+          type: integer
+          minimum: 0
+        name:
+          type: string
+          example: "J4KE954"
+        pseudonym:
+          type: string
+          example: "Hurtful-Jumbo"
+        bio:
+          type: string
+        profileImage:
+          type: string
+        profileImageOptimized:
+          type: string
+        transactionHash:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{64}$"
+          example: "0xe0dda75c7adbcba53918e94ac03206ae5068d7d54280e4013a7487f7c9490c21"
+
+    ActivityPayload:
+      type: object
+      description: Information about onchain activity
+      required:
+        - proxyWallet
+        - timestamp
+        - conditionId
+        - type
+        - size
+        - usdcSize
+        - transactionHash
+        - price
+        - asset
+        - side
+        - outcomeIndex
+        - title
+        - slug
+        - icon
+        - eventSlug
+        - outcome
+        - name
+        - pseudonym
+        - bio
+        - profileImage
+        - profileImageOptimized
+      properties:
+        proxyWallet:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          example: "0x5bbdda8c2447fd63f0e8dc8a3712352fc81b9ec2"
+        timestamp:
+          type: integer
+          format: int64
+          example: 1694431936
+        conditionId:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{64}$"
+          example: "0x60f4b7a3614eca5ec00853f7ec8ad1c9c5e5aac74a3835f46bf0931ad8f9b1bc"
+        type:
+          type: string
+          enum:
+            [
+              TRADE,
+              SPLIT,
+              MERGE,
+              REDEEM,
+              REWARD,
+              CONVERSION,
+              DEPOSIT,
+              WITHDRAWAL,
+              YIELD,
+            ]
+          example: "REDEEM"
+        size:
+          type: number
+          format: float
+          minimum: 0
+          example: 90
+        usdcSize:
+          type: number
+          format: float
+          minimum: 0
+        transactionHash:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{64}$"
+          example: "0xd1cffc9001324dfc8546b1c0cd2d5751c990cd56622de274ca1f091b7596344a"
+        price:
+          type: number
+          format: float
+          minimum: 0
+        asset:
+          type: string
+        side:
+          type: string
+          enum: [BUY, SELL]
+        outcomeIndex:
+          type: integer
+          minimum: 0
+        title:
+          type: string
+          example: "Will Rubiales remain Spanish FA president through Sep 11?"
+        slug:
+          type: string
+          example: "will-rubiales-remain-spanish-fa-president-through-sep-11"
+        icon:
+          type: string
+          example: "https://polymarket-upload.s3.us-east-2.amazonaws.com/kiss+Rubiales.jpeg"
+        eventSlug:
+          type: string
+          example: "will-rubiales-remain-spanish-fa-president-through-sep-11"
+        outcome:
+          type: string
+        name:
+          type: string
+          example: "Xav"
+        pseudonym:
+          type: string
+          example: "Frilly-Outset"
+        bio:
+          type: string
+        profileImage:
+          type: string
+        profileImageOptimized:
+          type: string
+
+    ValuePayload:
+      type: object
+      description: Total value of a user's positions
+      required:
+        - user
+        - value
+      properties:
+        user:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          example: "0x9d84ce0306f8551e02efef1680475fc0f1dc1344"
+        value:
+          type: number
+          format: float
+          minimum: 0
+          example: 768457.8534370395
+
+    TradedPayload:
+      type: object
+      description: Number of markets traded by a user
+      required:
+        - user
+        - traded
+      properties:
+        user:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          example: "0x64310c79be3502dd17e88d9ca7df781700a66f1f"
+        traded:
+          type: integer
+          minimum: 0
+          example: 245
     ErrorResponse:
       type: object
       required:

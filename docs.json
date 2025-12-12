@@ -66,7 +66,14 @@
               "api-reference/endpoint/get-tick-size",
               "api-reference/endpoint/get-tick-size-by-path",
               "api-reference/endpoint/get-neg-risk",
-              "api-reference/endpoint/get-neg-risk-by-path"
+              "api-reference/endpoint/get-neg-risk-by-path",
+              "api-reference/endpoint/get-holders",
+              "api-reference/endpoint/get-positions",
+              "api-reference/endpoint/get-value",
+              "api-reference/endpoint/get-closed-positions",
+              "api-reference/endpoint/get-trades",
+              "api-reference/endpoint/get-activity",
+              "api-reference/endpoint/get-traded"
             ]
           }
         ]
