@@ -24,10 +24,12 @@
             "pages": [
               "api-reference/endpoint/post-order",
               "api-reference/endpoint/post-orders",
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api-reference/endpoint/get-orders",
+              "api-reference/endpoint/get-order",
+              "api-reference/endpoint/cancel-order",
+              "api-reference/endpoint/cancel-orders",
+              "api-reference/endpoint/cancel-all",
+              "api-reference/endpoint/cancel-all-markets"
             ]
           }
         ]
