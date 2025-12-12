@@ -42,6 +42,21 @@
               "api-reference/endpoint/get-balance-allowance",
               "api-reference/endpoint/update-balance-allowance"
             ]
+          },
+          {
+            "group": "Data",
+            "pages": [
+              "api-reference/endpoint/get-midpoint",
+              "api-reference/endpoint/get-midpoints-get",
+              "api-reference/endpoint/get-midpoints-post",
+              "api-reference/endpoint/get-spread",
+              "api-reference/endpoint/get-spreads",
+              "api-reference/endpoint/get-last-trade-price",
+              "api-reference/endpoint/get-last-trades-prices-get",
+              "api-reference/endpoint/get-last-trades-prices-post",
+              "api-reference/endpoint/get-fee-rate",
+              "api-reference/endpoint/get-fee-rate-by-path"
+            ]
           }
         ]
       }
