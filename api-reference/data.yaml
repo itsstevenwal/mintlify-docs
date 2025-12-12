@@ -1859,6 +1859,1492 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+
+  /events/{id}:
+    get:
+      summary: Get event by ID
+      description: Retrieve a single event by its ID
+      operationId: getEventById
+      tags:
+        - Events
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Event ID
+          schema:
+            type: string
+        - name: include_chat
+          in: query
+          description: Include chat data in response
+          required: false
+          schema:
+            type: boolean
+        - name: include_template
+          in: query
+          description: Include template data in response
+          required: false
+          schema:
+            type: boolean
+        - name: include_best_lines
+          in: query
+          description: Include best lines data in response
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "404":
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /events/slug/{slug}:
+    get:
+      summary: Get event by slug
+      description: Retrieve a single event by its slug
+      operationId: getEventBySlug
+      tags:
+        - Events
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: Event slug
+          schema:
+            type: string
+        - name: include_chat
+          in: query
+          description: Include chat data in response
+          required: false
+          schema:
+            type: boolean
+        - name: include_template
+          in: query
+          description: Include template data in response
+          required: false
+          schema:
+            type: boolean
+        - name: include_best_lines
+          in: query
+          description: Include best lines data in response
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "404":
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /events/{id}/tags:
+    get:
+      summary: Get tags for an event
+      description: Retrieve all tags associated with a specific event
+      operationId: getEventTags
+      tags:
+        - Events
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Event ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventTag"
+        "404":
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /markets:
+    get:
+      summary: Get markets
+      description: Retrieve a list of markets with optional filtering
+      operationId: getMarkets
+      tags:
+        - Markets
+      parameters:
+        # Pagination parameters
+        - name: limit
+          in: query
+          description: Limit query results
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: offset
+          in: query
+          description: Offset of results for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: order
+          in: query
+          description: Field(s) to order by, separated by commas
+          required: false
+          schema:
+            type: string
+        - name: ascending
+          in: query
+          description: Boolean to define order direction
+          required: false
+          schema:
+            type: boolean
+            default: true
+        # ID and slug filters
+        - name: id
+          in: query
+          description: Market ID (numeric). Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
+          style: form
+          explode: true
+        - name: slug
+          in: query
+          description: Market slug(s). Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        # Boolean filters
+        - name: closed
+          in: query
+          description: Filter by closed status
+          required: false
+          schema:
+            type: boolean
+        # Token and condition filters
+        - name: clob_token_ids
+          in: query
+          description: CLOB token IDs. Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        - name: condition_ids
+          in: query
+          description: Condition IDs. Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        - name: question_ids
+          in: query
+          description: Question IDs. Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        - name: market_maker_address
+          in: query
+          description: Market maker address(es). Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        # Numeric range filters
+        - name: liquidity_num_min
+          in: query
+          description: Minimum liquidity (numeric)
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: liquidity_num_max
+          in: query
+          description: Maximum liquidity (numeric)
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: volume_num_min
+          in: query
+          description: Minimum volume (numeric)
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: volume_num_max
+          in: query
+          description: Maximum volume (numeric)
+          required: false
+          schema:
+            type: number
+            format: double
+        # Date range filters
+        - name: start_date_min
+          in: query
+          description: Minimum start date (ISO 8601 format)
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: start_date_max
+          in: query
+          description: Maximum start date (ISO 8601 format)
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end_date_min
+          in: query
+          description: Minimum end date (ISO 8601 format)
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end_date_max
+          in: query
+          description: Maximum end date (ISO 8601 format)
+          required: false
+          schema:
+            type: string
+            format: date-time
+        # Tag filters
+        - name: tag_id
+          in: query
+          description: Tag ID (integer). Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
+          style: form
+          explode: true
+        - name: related_tags
+          in: query
+          description: If tag_id exists and this value is true, get all markets that have the tag_id and related tags to it
+          required: false
+          schema:
+            type: boolean
+        # Other filters
+        - name: cyom
+          in: query
+          description: Filter by CYOM (Create Your Own Market) status
+          required: false
+          schema:
+            type: boolean
+        - name: uma_resolution_status
+          in: query
+          description: UMA resolution status
+          required: false
+          schema:
+            type: string
+        - name: game_id
+          in: query
+          description: Game ID (string)
+          required: false
+          schema:
+            type: string
+        - name: sports_market_types
+          in: query
+          description: Sports market types. Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        - name: rewards_min_size
+          in: query
+          description: Minimum rewards size
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: include_tag
+          in: query
+          description: Include tag data in response
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Market"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /markets/{id}:
+    get:
+      summary: Get market by ID
+      description: Retrieve a single market by its ID
+      operationId: getMarketById
+      tags:
+        - Markets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Market ID
+          schema:
+            type: string
+        - name: include_tag
+          in: query
+          description: Include tag data in response
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Market"
+        "404":
+          description: Market not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /markets/slug/{slug}:
+    get:
+      summary: Get market by slug
+      description: Retrieve a single market by its slug
+      operationId: getMarketBySlug
+      tags:
+        - Markets
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: Market slug
+          schema:
+            type: string
+        - name: include_tag
+          in: query
+          description: Include tag data in response
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Market"
+        "404":
+          description: Market not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /markets/{id}/tags:
+    get:
+      summary: Get tags for a market
+      description: Retrieve all tags associated with a specific market
+      operationId: getMarketTags
+      tags:
+        - Markets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Market ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MarketTag"
+        "404":
+          description: Market not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /creators:
+    get:
+      summary: Get creators
+      description: Retrieve a list of creators
+      operationId: getCreators
+      tags:
+        - Creators
+      parameters:
+        - name: limit
+          in: query
+          description: Limit query results
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: offset
+          in: query
+          description: Offset of results for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: order
+          in: query
+          description: Field(s) to order by, separated by commas
+          required: false
+          schema:
+            type: string
+        - name: ascending
+          in: query
+          description: Boolean to define order direction
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Creator"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /comments:
+    get:
+      summary: Get comments
+      description: Retrieve comments for a parent entity (event or series)
+      operationId: getComments
+      tags:
+        - Comments
+      parameters:
+        - name: parent_entity_id
+          in: query
+          description: Parent entity ID (required)
+          required: true
+          schema:
+            type: string
+        - name: parent_entity_type
+          in: query
+          description: Parent entity type - must be 'event' or 'series' (required)
+          required: true
+          schema:
+            type: string
+            enum: [event, series]
+        - name: limit
+          in: query
+          description: Limit query results
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: offset
+          in: query
+          description: Offset of results for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: order
+          in: query
+          description: Field(s) to order by, separated by commas
+          required: false
+          schema:
+            type: string
+        - name: ascending
+          in: query
+          description: Boolean to define order direction
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /comments/{commentId}:
+    get:
+      summary: Get comment by ID
+      description: Retrieve a single comment by its ID
+      operationId: getCommentById
+      tags:
+        - Comments
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: Comment ID
+          schema:
+            type: integer
+        - name: get_positions
+          in: query
+          description: Include user positions in response
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        "404":
+          description: Comment not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /comments/user_address/{user_address}:
+    get:
+      summary: Get comments by user address
+      description: Retrieve all comments made by a specific user address
+      operationId: getCommentsByUserAddress
+      tags:
+        - Comments
+      parameters:
+        - name: user_address
+          in: path
+          required: true
+          description: User Ethereum address
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{40}$"
+        - name: limit
+          in: query
+          description: Limit query results
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: offset
+          in: query
+          description: Offset of results for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: order
+          in: query
+          description: Field(s) to order by, separated by commas
+          required: false
+          schema:
+            type: string
+        - name: ascending
+          in: query
+          description: Boolean to define order direction
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+        "422":
+          description: Validation error (invalid user address)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+  /series:
+    get:
+      summary: Get series
+      description: Retrieve a list of series with optional filtering
+      operationId: getSeries
+      tags:
+        - Series
+      parameters:
+        # Pagination parameters
+        - name: limit
+          in: query
+          description: Limit query results
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: offset
+          in: query
+          description: Offset of results for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: order
+          in: query
+          description: Field(s) to order by, separated by commas
+          required: false
+          schema:
+            type: string
+        - name: ascending
+          in: query
+          description: Boolean to define order direction
+          required: false
+          schema:
+            type: boolean
+            default: true
+        # Filters
+        - name: slug
+          in: query
+          description: Series slug(s). Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        - name: categories_ids
+          in: query
+          description: Category IDs. Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
+          style: form
+          explode: true
+        - name: categories_labels
+          in: query
+          description: Category labels. Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        - name: recurrence
+          in: query
+          description: Recurrence pattern. Supports 'daily', 'weekly', and 'monthly'.
+          required: false
+          schema:
+            type: string
+            enum: [daily, weekly, monthly]
+        - name: include_chat
+          in: query
+          description: Include chat data in response
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Series"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /series/{id}:
+    get:
+      summary: Get series by ID
+      description: Retrieve a single series by its ID
+      operationId: getSeriesById
+      tags:
+        - Series
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Series ID
+          schema:
+            type: integer
+        - name: include_chat
+          in: query
+          description: Include chat data in response
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Series"
+        "404":
+          description: Series not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+  /series/{id}/tags:
+    get:
+      summary: Get tags for a series
+      description: Retrieve all tags associated with a specific series
+      operationId: getSeriesTags
+      tags:
+        - Series
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Series ID
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SeriesTag"
+        "404":
+          description: Series not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+  /tags/{tagId}:
+    get:
+      summary: Get tag by ID
+      description: Retrieve a single tag by its ID
+      operationId: getTagById
+      tags:
+        - Tags
+      parameters:
+        - name: tagId
+          in: path
+          required: true
+          description: Tag ID
+          schema:
+            type: integer
+        - name: include_chat
+          in: query
+          description: Include chat data in response
+          required: false
+          schema:
+            type: boolean
+        - name: include_template
+          in: query
+          description: Include template data in response
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+        "404":
+          description: Tag not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /tags/slug/{slug}:
+    get:
+      summary: Get tag by slug
+      description: Retrieve a single tag by its slug
+      operationId: getTagBySlug
+      tags:
+        - Tags
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: Tag slug
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+        "404":
+          description: Tag not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /tags/{tagId}/related-tags/tags:
+    get:
+      summary: Get tags related to a tag by ID
+      description: Retrieve all tags related to a specific tag identified by ID
+      operationId: getTagsRelatedToTagById
+      tags:
+        - Tags
+      parameters:
+        - name: tagId
+          in: path
+          required: true
+          description: Tag ID
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Limit query results
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: offset
+          in: query
+          description: Offset of results for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: order
+          in: query
+          description: Field(s) to order by, separated by commas
+          required: false
+          schema:
+            type: string
+        - name: ascending
+          in: query
+          description: Boolean to define order direction
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tag"
+        "404":
+          description: Tag not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /tags/slug/{slug}/related-tags/tags:
+    get:
+      summary: Get tags related to a tag by slug
+      description: Retrieve all tags related to a specific tag identified by slug
+      operationId: getTagsRelatedToTagBySlug
+      tags:
+        - Tags
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: Tag slug
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Limit query results
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: offset
+          in: query
+          description: Offset of results for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: order
+          in: query
+          description: Field(s) to order by, separated by commas
+          required: false
+          schema:
+            type: string
+        - name: ascending
+          in: query
+          description: Boolean to define order direction
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tag"
+        "404":
+          description: Tag not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /teams:
+    get:
+      summary: Get teams
+      description: Retrieve a list of teams with optional filtering
+      operationId: getTeams
+      tags:
+        - Teams
+      parameters:
+        - name: limit
+          in: query
+          description: Limit query results
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: offset
+          in: query
+          description: Offset of results for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: order
+          in: query
+          description: Field(s) to order by, separated by commas
+          required: false
+          schema:
+            type: string
+        - name: ascending
+          in: query
+          description: Boolean to define order direction
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: league
+          in: query
+          description: League name(s). Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        - name: name
+          in: query
+          description: Team name(s). Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        - name: abbreviation
+          in: query
+          description: Team abbreviation(s). Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        - name: provider_id
+          in: query
+          description: Provider ID(s). Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
+          style: form
+          explode: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Team"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /teams/{id}:
+    get:
+      summary: Get team by ID
+      description: Retrieve a single team by its ID
+      operationId: getTeamById
+      tags:
+        - Teams
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Team ID
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Team"
+        "404":
+          description: Team not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /sports:
+    get:
+      summary: Get sports
+      description: Retrieve a list of sports metadata
+      operationId: getSports
+      tags:
+        - Sports
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Sport"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
+  /public-search:
+    get:
+      summary: Public search
+      description: Search across events, markets, and profiles
+      operationId: publicSearch
+      tags:
+        - Search
+      parameters:
+        - name: q
+          in: query
+          description: Search query (required)
+          required: true
+          schema:
+            type: string
+        - name: cache
+          in: query
+          description: Enable caching
+          required: false
+          schema:
+            type: boolean
+        - name: events_status
+          in: query
+          description: Filter events by status
+          required: false
+          schema:
+            type: string
+            enum: [active, resolved]
+        - name: events_tag
+          in: query
+          description: Event tag(s). Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        - name: limit_per_type
+          in: query
+          description: Limit results per type
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: keep_closed_markets
+          in: query
+          description: Keep closed markets in results
+          required: false
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          description: Sort field
+          required: false
+          schema:
+            type: string
+        - name: ascending
+          in: query
+          description: Sort direction
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: search_tags
+          in: query
+          description: Include tags in search
+          required: false
+          schema:
+            type: boolean
+        - name: search_profiles
+          in: query
+          description: Include profiles in search
+          required: false
+          schema:
+            type: boolean
+        - name: recurrence
+          in: query
+          description: Recurrence pattern. Supports 'daily', 'weekly', and 'monthly'.
+          required: false
+          schema:
+            type: string
+            enum: [daily, weekly, monthly]
+        - name: exclude_tag_id
+          in: query
+          description: Tag ID(s) to exclude. Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
+          style: form
+          explode: true
+        - name: optimized
+          in: query
+          description: Return optimized response
+          required: false
+          schema:
+            type: boolean
+        - name: presets
+          in: query
+          description: Preset filter(s). Can be used multiple times.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicSearchResult"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+
 components:
   schemas:
     BookRequest:
@@ -2534,6 +4020,946 @@ components:
       required:
         - error
       properties:
+        error:
+          type: string
+          description: Error message
+    Event:
+      type: object
+      description: Event object as returned in various contexts. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        ticker:
+          type: string
+        slug:
+          type: string
+        title:
+          type: string
+        subtitle:
+          type: string
+        description:
+          type: string
+        resolutionSource:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        creationDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        image:
+          type: string
+        icon:
+          type: string
+        active:
+          type: boolean
+        closed:
+          type: boolean
+        archived:
+          type: boolean
+        new:
+          type: boolean
+        featured:
+          type: boolean
+        restricted:
+          type: boolean
+        liquidity:
+          type: number
+          format: double
+        volume:
+          type: number
+          format: double
+        openInterest:
+          type: number
+          format: double
+        sortBy:
+          type: string
+        category:
+          type: string
+        subcategory:
+          type: string
+        cyom:
+          type: boolean
+        closedTime:
+          type: string
+          format: date-time
+        eventDate:
+          type: string
+          format: date
+        startTime:
+          type: string
+          format: date-time
+        eventWeek:
+          type: integer
+        markets:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventMarket"
+        series:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventSeries"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventTag"
+        eventCreators:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventCreator"
+        bestLines:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventBestLine"
+        templates:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventTemplate"
+        chats:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventChat"
+        commentCount:
+          type: integer
+        volume24hr:
+          type: number
+          format: double
+        competitive:
+          type: number
+          format: double
+        showAllOutcomes:
+          type: boolean
+        showMarketImages:
+          type: boolean
+        enableNegRisk:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        live:
+          type: boolean
+        ended:
+          type: boolean
+        finishedTimestamp:
+          type: string
+          format: date-time
+        score:
+          type: string
+        elapsed:
+          type: string
+        period:
+          type: string
+        seriesSlug:
+          type: string
+        gameId:
+          type: integer
+        rescheduledFromGameId:
+          type: integer
+        sportsradarMatchId:
+          type: string
+        gameStatus:
+          type: string
+        homeTeamName:
+          type: string
+        awayTeamName:
+          type: string
+        parentEventId:
+          type: integer
+        publishedAt:
+          type: string
+        createdBy:
+          type: string
+        updatedBy:
+          type: string
+        commentsEnabled:
+          type: boolean
+        isTemplate:
+          type: boolean
+        templateVariables:
+          type: string
+        featuredImage:
+          type: string
+        disqusThread:
+          type: string
+        enableOrderBook:
+          type: boolean
+        liquidityAmm:
+          type: number
+          format: double
+        liquidityClob:
+          type: number
+          format: double
+        negRisk:
+          type: boolean
+        negRiskMarketID:
+          type: string
+        negRiskFeeBips:
+          type: integer
+        negRiskAugmented:
+          type: boolean
+        automaticallyResolved:
+          type: boolean
+        automaticallyActive:
+          type: boolean
+        featuredOrder:
+          type: integer
+        estimateValue:
+          type: boolean
+        cantEstimate:
+          type: boolean
+        estimatedValue:
+          type: string
+        spreadsMainLine:
+          type: number
+          format: double
+        totalsMainLine:
+          type: number
+          format: double
+        carouselMap:
+          type: string
+        pendingDeployment:
+          type: boolean
+        deploying:
+          type: boolean
+        deployingTimestamp:
+          type: string
+          format: date-time
+        scheduledDeploymentTimestamp:
+          type: string
+          format: date-time
+        gmpChartMode:
+          type: string
+        countryName:
+          type: string
+        electionType:
+          type: string
+        color:
+          type: string
+        tweetCount:
+          type: integer
+        volume1wk:
+          type: number
+          format: double
+        volume1mo:
+          type: number
+          format: double
+        volume1yr:
+          type: number
+          format: double
+        imageOptimized:
+          $ref: "#/components/schemas/ImageOptimization"
+        iconOptimized:
+          $ref: "#/components/schemas/ImageOptimization"
+        featuredImageOptimized:
+          $ref: "#/components/schemas/ImageOptimization"
+        subEvents:
+          type: array
+          items:
+            type: string
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventCategory"
+        collections:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventCollection"
+        internalUsers:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventInternalUser"
+
+    Market:
+      type: object
+      description: Market object as returned in various contexts. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        question:
+          type: string
+        slug:
+          type: string
+        conditionId:
+          type: string
+        resolutionSource:
+          type: string
+        endDate:
+          type: string
+          format: date-time
+        category:
+          type: string
+        liquidity:
+          type: string
+        volume:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        fee:
+          type: string
+        image:
+          type: string
+        icon:
+          type: string
+        active:
+          type: boolean
+        marketType:
+          type: string
+        closed:
+          type: boolean
+        marketMakerAddress:
+          type: string
+        updatedBy:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        closedTime:
+          type: string
+          format: date-time
+        wideFormat:
+          type: boolean
+        new:
+          type: boolean
+        sentDiscord:
+          type: boolean
+        mailchimpTag:
+          type: string
+        featured:
+          type: boolean
+        submitted_by:
+          type: string
+        twitterCardLocation:
+          type: string
+        twitterCardLastRefreshed:
+          type: string
+        twitterCardLastValidated:
+          type: string
+        archived:
+          type: boolean
+        resolvedBy:
+          type: string
+        restricted:
+          type: boolean
+        groupItemTitle:
+          type: string
+        questionID:
+          type: string
+        umaEndDate:
+          type: string
+        enableOrderBook:
+          type: boolean
+        umaResolutionStatus:
+          type: string
+        volumeNum:
+          type: number
+          format: double
+        liquidityNum:
+          type: number
+          format: double
+        endDateIso:
+          type: string
+          format: date
+        umaEndDateIso:
+          type: string
+          format: date
+        hasReviewedDates:
+          type: boolean
+        readyForCron:
+          type: boolean
+        volume24hr:
+          type: number
+          format: double
+        secondsDelay:
+          type: integer
+        clobTokenIds:
+          type: string
+        fpmmLive:
+          type: boolean
+        creator:
+          type: string
+        ready:
+          type: boolean
+        funded:
+          type: boolean
+        cyom:
+          type: boolean
+        competitive:
+          type: number
+          format: double
+        pagerDutyNotificationEnabled:
+          type: boolean
+        approved:
+          type: boolean
+        rewardsMinSize:
+          type: number
+          format: double
+        rewardsMaxSpread:
+          type: number
+          format: double
+        spread:
+          type: number
+          format: double
+        oneDayPriceChange:
+          type: number
+          format: double
+        lastTradePrice:
+          type: number
+          format: double
+        bestBid:
+          type: number
+          format: double
+        bestAsk:
+          type: number
+          format: double
+        clearBookOnStart:
+          type: boolean
+        manualActivation:
+          type: boolean
+        negRiskOther:
+          type: boolean
+        description:
+          type: string
+        outcomes:
+          type: string
+        outcomePrices:
+          type: string
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/MarketEvent"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/MarketTag"
+
+    Series:
+      type: object
+      description: Series object as returned in various contexts. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        slug:
+          type: string
+        title:
+          type: string
+        subtitle:
+          type: string
+        description:
+          type: string
+        image:
+          type: string
+        icon:
+          type: string
+        active:
+          type: boolean
+        closed:
+          type: boolean
+        archived:
+          type: boolean
+        new:
+          type: boolean
+        featured:
+          type: boolean
+        restricted:
+          type: boolean
+        recurrence:
+          type: string
+          description: Recurrence pattern (daily, weekly, monthly)
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeriesEvent"
+        chats:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeriesChat"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Tag:
+      type: object
+      description: Tag object as returned in various contexts. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        slug:
+          type: string
+        forceShow:
+          type: boolean
+        updatedAt:
+          type: string
+          format: date-time
+        chats:
+          type: array
+          items:
+            $ref: "#/components/schemas/TagChat"
+        templates:
+          type: array
+          items:
+            $ref: "#/components/schemas/TagTemplate"
+
+    Comment:
+      type: object
+      description: Comment object as returned in various contexts. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        body:
+          type: string
+        parentEntityType:
+          type: string
+        parentEntityID:
+          type: integer
+        parentCommentID:
+          type: string
+        userAddress:
+          type: string
+        replyAddress:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        profile:
+          $ref: "#/components/schemas/CommentProfile"
+        reactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommentReaction"
+        reportCount:
+          type: integer
+        reactionCount:
+          type: integer
+
+    Creator:
+      type: object
+      description: Creator object as returned in various contexts. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        address:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Team:
+      type: object
+      description: Team object as returned in various contexts. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        abbreviation:
+          type: string
+        league:
+          type: string
+        providerId:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Sport:
+      type: object
+      description: Sport metadata object as returned in various contexts. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        sport:
+          type: string
+        ticker:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PublicSearchResult:
+      type: object
+      description: Public search result containing events, markets, and profiles
+      properties:
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/Event"
+        markets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Market"
+        profiles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Profile"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
+
+    # Context-specific child objects
+    EventMarket:
+      type: object
+      description: Market object as returned in Event context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        question:
+          type: string
+        slug:
+          type: string
+        conditionId:
+          type: string
+        liquidity:
+          type: string
+        volume:
+          type: string
+
+    EventSeries:
+      type: object
+      description: Series object as returned in Event context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        slug:
+          type: string
+        title:
+          type: string
+        recurrence:
+          type: string
+
+    EventTag:
+      type: object
+      description: Tag object as returned in Event context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        slug:
+          type: string
+        forceShow:
+          type: boolean
+        updatedAt:
+          type: string
+          format: date-time
+
+    EventCreator:
+      type: object
+      description: Event creator object as returned in Event context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        creatorName:
+          type: string
+        creatorHandle:
+          type: string
+        creatorUrl:
+          type: string
+        creatorImage:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    EventBestLine:
+      type: object
+      description: Best line object as returned in Event context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        lineType:
+          type: string
+        line:
+          type: number
+          format: double
+
+    EventTemplate:
+      type: object
+      description: Template object as returned in Event context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        slug:
+          type: string
+
+    EventChat:
+      type: object
+      description: Chat object as returned in Event context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        channelId:
+          type: string
+        channelName:
+          type: string
+        channelImage:
+          type: string
+        live:
+          type: boolean
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+
+    EventCategory:
+      type: object
+      description: Category object as returned in Event context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        slug:
+          type: string
+        parentCategory:
+          type: string
+
+    EventCollection:
+      type: object
+      description: Collection object as returned in Event context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        slug:
+          type: string
+
+    EventInternalUser:
+      type: object
+      description: Internal user object as returned in Event context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+
+    MarketEvent:
+      type: object
+      description: Event object as returned in Market context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        slug:
+          type: string
+        title:
+          type: string
+        series:
+          type: array
+          items:
+            $ref: "#/components/schemas/MarketEventSeries"
+
+    MarketEventSeries:
+      type: object
+      description: Series object as returned in Market Event context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        slug:
+          type: string
+        title:
+          type: string
+
+    MarketTag:
+      type: object
+      description: Tag object as returned in Market context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        slug:
+          type: string
+
+    SeriesEvent:
+      type: object
+      description: Event object as returned in Series context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        slug:
+          type: string
+        title:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeriesEventTag"
+
+    SeriesEventTag:
+      type: object
+      description: Tag object as returned in Series Event context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        slug:
+          type: string
+
+    SeriesChat:
+      type: object
+      description: Chat object as returned in Series context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        channelId:
+          type: string
+        channelName:
+          type: string
+
+    TagChat:
+      type: object
+      description: Chat object as returned in Tag context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        channelId:
+          type: string
+        channelName:
+          type: string
+
+    TagTemplate:
+      type: object
+      description: Template object as returned in Tag context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        slug:
+          type: string
+
+    CommentProfile:
+      type: object
+      description: Profile object as returned in Comment context. Only certain fields may be populated.
+      properties:
+        name:
+          type: string
+        pseudonym:
+          type: string
+        displayUsernamePublic:
+          type: boolean
+        bio:
+          type: string
+        isMod:
+          type: boolean
+        isCreator:
+          type: boolean
+        proxyWallet:
+          type: string
+        baseAddress:
+          type: string
+        profileImage:
+          type: string
+        profileImageOptimized:
+          $ref: "#/components/schemas/ImageOptimization"
+        positions:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommentPosition"
+
+    CommentPosition:
+      type: object
+      description: Position object as returned in Comment context. Only certain fields may be populated.
+      properties:
+        tokenId:
+          type: string
+        positionSize:
+          type: string
+
+    CommentReaction:
+      type: object
+      description: Reaction object as returned in Comment context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        reactionType:
+          type: string
+        userAddress:
+          type: string
+
+    Profile:
+      type: object
+      description: Profile object as returned in search context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        pseudonym:
+          type: string
+        profileImage:
+          type: string
+
+    ImageOptimization:
+      type: object
+      description: Image optimization metadata
+      properties:
+        url:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+    SeriesTag:
+      type: object
+      description: Tag object as returned in Series context. Only certain fields may be populated.
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        slug:
+          type: string
+        forceShow:
+          type: boolean
+        updatedAt:
+          type: string
+          format: date-time
+    APIError:
+      type: object
+      required:
+        - type
+        - error
+      properties:
+        type:
+          type: string
+          description: Error type (e.g., "validation error", "internal error", "not found")
         error:
           type: string
           description: Error message
