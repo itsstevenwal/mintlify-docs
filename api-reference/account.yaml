@@ -188,6 +188,176 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 error: "Internal server error"
+  /balance-allowance:
+    get:
+      summary: Get balance and allowance
+      description: |
+        Retrieves the balance and allowances for the authenticated user's address.
+        The address is determined from the API key authentication and signature type.
+      operationId: getBalanceAllowance
+      tags:
+        - Account
+      security:
+        - polyApiKey: []
+          polyAddress: []
+          polySignature2: []
+          polyPassphrase: []
+          polyTimestamp: []
+      parameters:
+        - name: asset_type
+          in: query
+          description: Type of asset
+          required: true
+          schema:
+            type: string
+            enum:
+              - COLLATERAL
+              - CONDITIONAL
+          example: "COLLATERAL"
+        - name: token_id
+          in: query
+          description: Token ID (asset ID). Defaults to "-1" for ERC20 collateral.
+          required: false
+          schema:
+            type: string
+          example: "0xabc123def456..."
+        - name: signature_type
+          in: query
+          description: Signature type for address derivation (0=EOA, 1=POLY_PROXY, 2=POLY_GNOSIS_SAFE)
+          required: false
+          schema:
+            type: integer
+            default: 0
+            enum:
+              - 0
+              - 1
+              - 2
+      responses:
+        "200":
+          description: Successfully retrieved balance and allowances
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BalanceAllowanceResponse"
+              example:
+                balance: "1000000000000000000"
+                allowances:
+                  "0x1234567890123456789012345678901234567890": "500000000000000000"
+                  "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd": "1000000000000000000"
+        "400":
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                invalid_asset_type:
+                  summary: Invalid asset type
+                  value:
+                    error: "Invalid asset type"
+                invalid_signature_type:
+                  summary: Invalid signature type
+                  value:
+                    error: "Invalid signature_type"
+        "401":
+          description: Unauthorized - Invalid API key or authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Invalid API key"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Internal server error"
+
+    put:
+      summary: Update balance and allowance
+      description: |
+        Forces an update of the balance and allowances by fetching fresh data from the blockchain.
+        The address is determined from the API key authentication and signature type.
+      operationId: updateBalanceAllowance
+      tags:
+        - Account
+      security:
+        - polyApiKey: []
+          polyAddress: []
+          polySignature2: []
+          polyPassphrase: []
+          polyTimestamp: []
+      parameters:
+        - name: asset_type
+          in: query
+          description: Type of asset
+          required: true
+          schema:
+            type: string
+            enum:
+              - COLLATERAL
+              - CONDITIONAL
+          example: "COLLATERAL"
+        - name: token_id
+          in: query
+          description: Token ID (asset ID). Defaults to "-1" for ERC20 collateral.
+          required: false
+          schema:
+            type: string
+          example: "0xabc123def456..."
+        - name: signature_type
+          in: query
+          description: Signature type for address derivation (0=EOA, 1=POLY_PROXY, 2=POLY_GNOSIS_SAFE)
+          required: false
+          schema:
+            type: integer
+            default: 0
+            enum:
+              - 0
+              - 1
+              - 2
+      responses:
+        "200":
+          description: Balance and allowances successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+              example: {}
+        "400":
+          description: Bad request - Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                invalid_asset_type:
+                  summary: Invalid asset type
+                  value:
+                    error: "Invalid asset type"
+                invalid_signature_type:
+                  summary: Invalid signature type
+                  value:
+                    error: "Invalid signature_type"
+        "401":
+          description: Unauthorized - Invalid API key or authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Invalid API key"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Internal server error"
 components:
   schemas:
     ApiKeyResponse:
@@ -220,6 +390,24 @@ components:
           example:
             - "f4f247b7-4ac7-ff29-a152-04fda0a8755a"
             - "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    BalanceAllowanceResponse:
+      type: object
+      required:
+        - balance
+        - allowances
+      properties:
+        balance:
+          type: string
+          description: Balance amount in fixed-math with 6 decimals
+          example: "1000000000000000000"
+        allowances:
+          type: object
+          description: Map of spender addresses to allowance amounts
+          additionalProperties:
+            type: string
+          example:
+            "0x1234567890123456789012345678901234567890": "500000000000000000"
+            "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd": "1000000000000000000"
     ErrorResponse:
       type: object
       required:

@@ -38,7 +38,9 @@
               "api-reference/endpoint/create-api-key",
               "api-reference/endpoint/get-api-keys",
               "api-reference/endpoint/derive-api-key",
-              "api-reference/endpoint/remove-api-key"
+              "api-reference/endpoint/remove-api-key",
+              "api-reference/endpoint/get-balance-allowance",
+              "api-reference/endpoint/update-balance-allowance"
             ]
           }
         ]
