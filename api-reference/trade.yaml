@@ -1046,8 +1046,11 @@ paths:
         If authenticated with CLOB, the `builder` field will be automatically set to the builder API key.
       operationId: submitTransaction
       security:
-        - GammaAuth: []
-        - ClobAuth: []
+        - polyApiKey: []
+          polyAddress: []
+          polySignature: []
+          polyPassphrase: []
+          polyTimestamp: []
       requestBody:
         required: true
         content:
